@@ -25,30 +25,43 @@ var plays = {
 console.log(statement(invoice, plays));
 
 function statement (invoice, plays) {
-    return renderPlainText(invoice, plays);
+    return renderPlainText(createStatementData(invoice, plays));
 }
 
-function renderPlainText(invoice, plays) {
-    let totalAmount = 0;
-    let result = `Statement for ${invoice.customer}\n`;
+function createStatementData(invoice, plays)
+{
+    const statementData = {};
+    statementData.customer = invoice.customer;
+    statementData.performances = invoice.performances.map(enrichPerformance);
+    statementData.totalAmount = totalAmount(statementData);
+    statementData.totalVolumeCredits = totalVolumeCredits(statementData);
+    return statementData;
+}
 
-    for (let perf of invoice.performances) {
-        // print line for this order
-        result += ` ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience} seats)\n`;
-        totalAmount += amountFor(perf);
-    }
-
-    result += `Amount owed is ${usd(totalAmount)}\n`;
-    result += `You earned ${totalVolumeCredits()} credits\n`;
+function enrichPerformance(aPerformance) {
+    const result = Object.assign({}, aPerformance);
+    result.play = playFor(result);
+    result.amount = amountFor(result);
+    result.volumeCredits = volumeCreditsFor(result);
     return result;
 }
 
-function totalVolumeCredits() {
-    let result = 0;
-    for (let perf of invoice.performances) {
-        result += volumeCreditsFor(perf);
+function renderPlainText(data) {
+    let result = `Statement for ${data.customer}\n`;
+    for (let perf of data.performances) {
+        result += ` ${perf.play.name}: ${usd(perf.amount)} (${perf.audience} seats)\n`;
     }
+    result += `Amount owed is ${usd(data.totalAmount)}\n`;
+    result += `You earned ${data.totalVolumeCredits} credits\n`;
     return result;
+}
+
+function totalAmount(data) {
+    return data.performances.reduce((total, p) => total + p.amount, 0);
+}
+
+function totalVolumeCredits(data) {
+    return data.performances.reduce((total, p) => total + p.volumeCredits, 0);
 }
 
 function usd(aNumber) {
