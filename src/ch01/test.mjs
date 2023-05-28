@@ -1,4 +1,4 @@
-import statement from "./statement.mjs";
+import { htmlStatement, statement } from "./statement.mjs";
 
 var invoice = {
     "customer": "BigCo",
@@ -25,3 +25,4 @@ var plays = {
 };
 
 console.log(statement(invoice, plays));
+console.log(htmlStatement(invoice, plays));
