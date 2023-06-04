@@ -4,7 +4,7 @@ export class PerformanceCalculator {
         this.play = aPlay;
     }
 
-    getAmount() {
+    get amount() {
         let result = 0;
         switch (this.play.type) {
             case "tragedy":
@@ -23,6 +23,7 @@ export class PerformanceCalculator {
             default:
                 throw new Error(`unknown type: ${this.play.type}`);
         }
+
         return result;
     }
 }
