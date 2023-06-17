@@ -207,15 +207,159 @@ My notes for Refactoring 2nd edition by Martin Fowler
         - *We need to get the system under tests by finding seams in the program where we can insert tests. Createing these seams involves refactoring -- which is much more dangerous since it's done without tests, but is a necessary risk to make progress. -- Working Effectivelty with Legacy Code by Feather*
 
     - **Databases**
-
+        - https://martinfowler.com/books/refactoringDatabases.html
+        - Ensure that changes/updates are small and incremental
+        - Use a migration tool
+        - Database changes are best separated over multiple releases to production
+        - This makes it easy to reverse any change that causes a problem in production
 
 - **Refactoring, Architecture and YAGNI**
+    - Architectoral decisions are made based on the current requirements.
+    - Some pre-thinking is needed but it should not be left to decay over time.
+    - Consistent refactoring is applied to the codebase to make it update to date with the current requirements.
+    - *You aren't gonna need it (YAGNI) is a principle of extreme programming (XP) that states a programmer should not add functionality until deemed necessary. XP co-founder Ron Jeffries has written: "Always implement things when you actually need them, never when you just foresee that you need them."*
+    - Adopting YAGNI does not mean we should neglect all upfront architectural thinking. But we are more inclined to deal with the problems later when we understand them better.
+    - This means architecture is not a one-time activity. It is a continuous process of refactoring and improving the codebase.
+    - Architecture is evolutionary and architect explore the patterns and practices to iterate over architectural decisions.
 
 - **Refactoring and the wider Software Development Process**
+    - 
 
 - **Refactoring and Performance**
+    - Refactoring may affect performance.
+    - To make the software easier to read and understand, changes will cause the program to run slower.
+    - But it also makes the software more amendable to performance tuning.
+    - *The secret to fast software - write tunable software first, and then ture it for sufficient speed.*
+    - Even if you know exactly what is going on in your system, measure performance, don't speculate. You'll learn something, and nine times out of then, it won't be that you were right!
 
 - **Where did refactoring come from?**
 
 - **Automated Refactorings**
         
+<br>
+
+---
+
+<br>
+
+## Chapter 3 - Bad Smells in Code
+- *If it stinks, change it. - Grandma Beck, discussing child-rearing philosophy*
+- **Code Smells**
+    - Code smells are indicators of problems that can be
+addressed during refactoring. Code smells are
+easy to spot and fix, but they may be just
+symptoms of a deeper problem
+with code.
+- **Mysterios Name**
+    - The name of a variable, function, class, or any other element of code should clearly describe its purpose.
+    - If a name requires a comment, then the name does not reveal its intent.
+
+- **Duplicated Code**
+    - Duplication means that every time you read these copies, you have to read them carefully to see if they are the same or different.
+    - If you change one copy, you have to remember to change the other copy, too.
+
+- **Long Method**
+    - The longer a method is, the more difficult it is to understand.
+    - *TIP: Whenever we feel the need to comment something, we should consider extracting the code into a separate method.*
+    - The key here is not function length but the semantic distance between what the method does and how it does it.
+    - Reduce the number of parameters and temporary variables.
+    - Extract switches, loops, and other logic into separate methods.
+    - Look for comments and extract the code into a separate method.
+
+- **Long Parameter List**
+    - The more parameters a method has, the more complex it is.
+    - *TIP: If you have a method with more than three parameters, you should consider creating a class to hold the parameters.*
+    - Classes are a great way to reduce parameter list sizes.
+
+- **Global Data**
+    - The problem with global data is that it can be changed from anywhere in the code.
+    - The key defense here is Encapsulation. Wrapped by a class and a function.
+    - Global data is especially nasty when it is mutable.
+
+- **Mutable Data**
+    - Changes to data can often lead to unexpected consequences and tricky bugs.
+    - Functional proramming - is based on the notion that data should never change and that updating data should be done by creating new data, leaving the old data pristine.
+    - Mutable data isn't a big problem when it's a variable whose scope is just a couple of lines--but its risk increases as its scope grows.
+
+- **Divergent Change**
+    - Divergent change is when one module is commonly changed in different ways for different reasons.
+
+- **Shotgun Surgery**
+    - Shotgun surgery is the opposite of divergent change. It's when you make a change that forces you to make many others in various, unrelated modules.
+    - A useful tactic for shotgun surgery is to use inlining refactorings to move the code from the many places it is used to a single place.
+    - You will end up with a long method or a large class, but can then use extractions to break it up into more sensible pieces.
+
+- **Feature Envy**
+    - Feature envy is when a method seems more interested in a class other than the one it actually is in.
+    - The fundamental rule of thumb is to put things together that change together, and keep things that change for different reasons apart.
+
+- **Data Clumps**
+    - Data clumps are groups of variables that are always used together: as fields in a couple of classes, as parameters in many methods, and so on.
+    - *TIP: Whenever you see a data clump, you should consider replacing it with a class.*
+    - You'll notice that we advocate creating a class here, not a simple record structure. Using a class gives you the opportunity to add behavior to the data, which is often useful.
+
+- **Primitive Obsession**
+    - Primitive obsession is when you have a code that uses primitive data types for everything, without using abstractions such as classes to represent the business concepts.
+    - Strings are particularly common targets for primitive obsession. They are often used to represent things like names, addresses, and phone numbers.
+    - *TIP: Whenever you see a primitive obsession, you should consider replacing it with a class.*
+
+- **Repeated Switches**
+    - Repeated switches are when you see the same conditional switch statement in many places.
+    - *TIP: Whenever you see a repeated switch, you should consider replacing it with polymorphism.*
+
+- **Loops**
+    - Replace Loop with Pipeline - https://refactoring.com/catalog/replaceLoopWithPipeline.html
+    - We find that pipelines, such as `filter` and `map`, are easier to read and understand than loops.
+
+- **Lazy Element**
+    - Lazy element is when you see a data structure that is filled with elements that are not used.
+    - *TIP: Whenever you see a lazy element, you should consider removing it.*
+    - Use Inline Function or Inline Class to remove the lazy element.
+
+- **Speculative Generality**
+    - Speculative generality is when you see unused abstractions, such as classes, methods, fields, and parameters.
+    - If you have abstract classes that aren't doing much, use Collapse Hierarchy.
+    - Unecessary delegation can be removed with Inline Function or Inline Class.
+    - Function parameters that aren't used can be removed with Remove Parameter/Change Function Declaration.
+
+- **Temporary Field**
+    - Temporary field is when you see an instance field that is set only in certain circumstances.
+    - *TIP: Whenever you see a temporary field, you should consider replacing it with a local variable.*
+
+- **Message Chains**
+    - Message chains are when you see a series of calls to get to a particular object.
+    - You may see these as a long line of `getThis` methods, or as a sequence of temps.
+
+- **Middle Man**
+    - Middle man is when you see a class that delegates all of its methods to another class.
+    - You look at a class's interface and find half the methods are delegating to another class.
+
+- **Insider Trading**
+    - Insider trading is when you see a class that uses information it shouldn't have access to.
+
+- **Large Class**
+    - Large class is when you see a class that has grown too large.
+    - *TIP: Whenever you see a large class, you should consider using Extract Class to break it up into smaller classes.*
+
+- **Alternative Classes with Different Interfaces**
+    - Alternative classes with different interfaces is when you see two classes that do similar things but have different method names.
+
+- **Data Class**
+    - Data class is when you see a class that has fields and simple accessors and mutators for those fields, but nothing else.
+
+- **Refused Bequest**
+    - Refused bequest is when you see a subclass that uses only some of the methods and properties inherited from its parents.
+
+- **Comments**
+    - Comments are when you see comments that are not necessary.
+    - Comments are often used as a deodorant. They are used to cover up a code smell.
+    - Comments are often used as a crutch. They are used to explain code that is not well written.
+    - Comments lead us to bad code and opportunities to refactoring.
+
+<br>
+
+---
+
+<br>
+
+## Chapter 4 - Building Tests
