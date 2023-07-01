@@ -5,8 +5,11 @@
   "type": "commonjs",
   "main": "producer.js",
   "scripts": {
-    "test": ""
+    "test": "mocha"
   },
   "author": "Fred Duazo",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^10.2.0"
+  }
 }
