@@ -1,4 +1,7 @@
-export class Province {
+
+const Producer = require('./producer.js');
+
+class Province {
     constructor(doc) {
         this._name = doc.name;
         this._producers = [];
@@ -50,3 +53,5 @@ export class Province {
         this._totalProduction += arg.production;
     }
 }
+
+module.exports = Province;

@@ -1,0 +1,12 @@
+{
+  "name": "refactoring-2nd-ed-ch04",
+  "version": "1.0.0",
+  "description": "Creating tests for a simple producer-consumer application",
+  "type": "commonjs",
+  "main": "producer.js",
+  "scripts": {
+    "test": ""
+  },
+  "author": "Fred Duazo",
+  "license": "ISC"
+}
