@@ -245,12 +245,9 @@ My notes for Refactoring 2nd edition by Martin Fowler
 ## Chapter 3 - Bad Smells in Code
 - *If it stinks, change it. - Grandma Beck, discussing child-rearing philosophy*
 - **Code Smells**
-    - Code smells are indicators of problems that can be
-addressed during refactoring. Code smells are
-easy to spot and fix, but they may be just
-symptoms of a deeper problem
-with code.
-- **Mysterios Name**
+    - Code smells are indicators of problems that can be addressed during refactoring. Code smells are easy to spot and fix, but they may be just symptoms of a deeper problem with code.
+
+- **Mysterious Name**
     - The name of a variable, function, class, or any other element of code should clearly describe its purpose.
     - If a name requires a comment, then the name does not reveal its intent.
 
@@ -278,7 +275,7 @@ with code.
 
 - **Mutable Data**
     - Changes to data can often lead to unexpected consequences and tricky bugs.
-    - Functional proramming - is based on the notion that data should never change and that updating data should be done by creating new data, leaving the old data pristine.
+    - Functional programming - is based on the notion that data should never change and that updating data should be done by creating new data, leaving the old data pristine.
     - Mutable data isn't a big problem when it's a variable whose scope is just a couple of lines--but its risk increases as its scope grows.
 
 - **Divergent Change**
@@ -363,3 +360,55 @@ with code.
 <br>
 
 ## Chapter 4 - Building Tests
+- To do refactoring properly, we need to have a solid suite of tests to spot mistakes.
+- *TIP: Make sure all tests are fully automatic and that they check their own results.*
+- *TIP: A suite of tests is a powerful bug detector that decapitates the time it takes to find bugs.*
+-  **TDD - Test-Driven Development** - write tests first, then write code to pass the tests.
+
+- **A FIRST TEST**
+    - *TIP: Describe just enough to indentify which test is when it fails.*
+    - *TIP: Always make sure a test will fail when it should.*
+    - When writing test to an existing code base, ensure that the test fails at least once.
+    - This can be done by temporarily injecting a fault in the code.
+    - *TIP: Run tests frequently. Run those exercising the code you are working on every few minutes; run all tests at least once per day.*
+
+- **ADD ANOTHER TEST**
+    - Add more tests to cover more cases.
+    - Look at all the things the class should do and test each one of them for any conditions that could cause a failure.
+    - **NOTE:**
+        - **Testing should be risk driven. Focus on the areas of the code that are most likely to break or cause bugs.**
+        - **DO NOT TEST EVERY PUBLIC METHOD!!!**
+    - *TIP: It is better to write and run incomplete tests than not to run complete tests.*
+    
+    - **STEPS ON ADDING TEST TO EXISTING CODE:**
+        - Write a test with a placeholder for the expected value
+        - Replace the placeholder with the code's actual value
+        - Inject a fault to ensure the test fails
+        - Revert the fault and ensure the test passes
+    
+    - Use `beforeEach` to setup the test fixture.
+    - Use `tearDown` to teardown the test fixture.
+
+    - **COMMON PATTERN FOR ADDING TESTS:**
+        - Take the initial standard fixture that's setup by the `beforeEach` block
+        - `Exercise` that fixture for the test
+        - `Verify` the fixture has done what it should have done
+        - This exercise is commonly described as `setup-exercise-verify`, `given-when-then`, or `arrange-act-assert`.
+    
+    - *TIP: Think of the boundary condtions under which things might go wrong and concentrate your tests there.*
+    - Be an enemy of your own code. Think of all the ways you can break your code and write tests for them!!!
+    - *TIP: Don't let the fear that testing can't catch all bugs stop you from writing tests that catch most bugs.*
+    - There is a law of diminishing returns in testing, and there is the danger that by trying to write too many tests you become discouratged and end up not writing any way.
+    - Concentrate on where the risks are and write tests for those areas.
+    - Testing is an iterative activity. You won't get your tests right the first time.    
+    - Add new tests and review existing tests.
+        - Are they clear enough?
+        - Do I need to refactor them so I can understand them more easily?
+        - Have I got the right tests?
+    - *TIP: When you get a bug report, start by writing a unit test that exposes that bug!!!*
+    - Only fix the bug after writing the test.
+    - `Test coverage` is only good for indentifying untested areas of the code, not for assessing 
+    the qualting of a test suite.
+    
+
+
