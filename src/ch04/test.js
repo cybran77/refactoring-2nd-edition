@@ -1,5 +1,5 @@
 const Province = require('./province.js');
-const assert = require('assert');
+const { expect } = require('chai');
 
 function sampleProvinceData() {
   return {
@@ -17,6 +17,11 @@ function sampleProvinceData() {
 describe('province', function () {    
     it('shortfall', function () {
         const asia = new Province(sampleProvinceData());
-        assert.equal(asia.shortfall, 5);
+        expect(asia.shortfall).equal(5);
     })
+
+    it('profit', function () {
+        const asia = new Province(sampleProvinceData());
+        expect(asia.profit).equal(230);
+    });
 });
