@@ -1,3 +1,6 @@
+const Province = require('./province.js');
+const assert = require('assert');
+
 function sampleProvinceData() {
   return {
     name: 'Asia',
@@ -10,3 +13,10 @@ function sampleProvinceData() {
     price: 20,
   };
 }
+
+describe('province', function () {    
+    it('shortfall', function () {
+        const asia = new Province(sampleProvinceData());
+        assert.equal(asia.shortfall, 5);
+    })
+});
