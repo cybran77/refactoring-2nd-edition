@@ -410,3 +410,11 @@ My notes for Refactoring 2nd edition by Martin Fowler
     - `Test coverage` is only good for indentifying untested areas of the code, not for assessing 
     the quality of a test suite.
 
+## Chapter 5 - Introducing the Catalog
+- **FORMAT OF THE REFACTORINGS**
+    - *Name* - what is the refactoring called
+    - *Sketch* - what does the refactoring do
+    - *Motivation* - why do we need this refactoring
+    - *Mechanics* - steps on hot to do the refactoring
+    - Examples - examples of the refactoring to illustrate how it works
+
