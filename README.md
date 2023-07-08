@@ -408,7 +408,5 @@ My notes for Refactoring 2nd edition by Martin Fowler
     - *TIP: When you get a bug report, start by writing a unit test that exposes that bug!!!*
     - Only fix the bug after writing the test.
     - `Test coverage` is only good for indentifying untested areas of the code, not for assessing 
-    the qualting of a test suite.
-    
-
+    the quality of a test suite.
 
