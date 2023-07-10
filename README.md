@@ -418,3 +418,245 @@ My notes for Refactoring 2nd edition by Martin Fowler
     - *Mechanics* - steps on hot to do the refactoring
     - Examples - examples of the refactoring to illustrate how it works
 
+## Chapter 6 - A First Set of Refactorings
+- **EXTRACT FUNCTION**
+    - *Formerly:* Extract Method
+    - *Inverse of:* Inline Function
+    - *Motivation:* 
+        - It is the separation between intention and implementation.
+        - If you spend effort  looking at a frament of code and figuring out *what* it does, then you should extract it into a function and name the function after the *what*.
+        - Comments are often a good hint for the name of the function.
+        - Nest the extracted function if the language supports it. This reduces the amount of out-of-scope vairables to deal with.
+    - *Mechanics:*
+        - *Create a new function and name it after the intention of the function.*
+            - Only extract the code even if it is a single line function, if it is not obvious what it does.
+            - We may not come up with the best name. Sometimes a good name only appears as we work with the extrction.
+        - *Copy the extract code form the source function into the new target function.*
+        - *Scan the extracted code for references to any variables that are local in scope to the source function and will not be in scope for the extracted function. Pass them as parameters.*
+            - This is not an issue in nested functions.
+            - The general approach is to pass all parameters as arguments.
+            - If there are too many parameters, then use `Split Variable` or `Replace Temp with Query`.
+        - *Complie after all variables are dealt with.*
+        - *Replace the extracted code in the source function with a call to the target function.*
+        - *Test*
+        - *Look for other code that's the same or siilar to the code just extracted, and consider using `Replace Inline Code with Function Call` to call the new function.*
+    - *Example:*
+        - *Before:*
+            ```javascript
+            function printOwing(invoice) {
+                let outstanding = 0;
+
+                console.log("***********************");
+                console.log("**** Customer Owes ****");
+                console.log("***********************");
+
+                // calculate outstanding
+                for (const o of invoice.orders) {
+                    outstanding += o.amount;
+                }
+
+                // record due date
+                const today = Clock.today;
+                invoice.dueDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 30);
+
+                // print details
+                console.log(`name: ${invoice.customer}`);
+                console.log(`amount: ${outstanding}`);
+                console.log(`due: ${invoice.dueDate.toLocaleDateString()}`);
+            }
+            ```
+        - *NOTE:* `Clock.today` is a Clock Wrappe, an object that wraps calls to the system clock. This avoid putting direct calls to the system clock in the code, which makes it easier to test.
+        - *After:*
+            ```javascript
+            function printOwing(invoice) {
+                printBanner();
+                let outstanding = calculateOutstanding(invoice);
+                recordDueDate(invoice);
+                printDetails(invoice, outstanding);
+            }
+
+            function printBanner() {
+                console.log("***********************");
+                console.log("**** Customer Owes ****");
+                console.log("***********************");
+            }
+
+            function calculateOutstanding(invoice) {
+                let result = 0;
+                for (const o of invoice.orders) {
+                    result += o.amount;
+                }
+                return result;
+            }
+
+            function recordDueDate(invoice) {
+                const today = Clock.today;
+                invoice.dueDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 30);
+            }
+
+            function printDetails(invoice, outstanding) {
+                console.log(`name: ${invoice.customer}`);
+                console.log(`amount: ${outstanding}`);
+                console.log(`due: ${invoice.dueDate.toLocaleDateString()}`);
+            }
+            ``` 
+
+- **INLINE FUNCTION**
+    - *Formerly:* Inline Method
+    - *Inverse of:* Extract Function
+    - *Motivation:* 
+        - Inline the function when it's body shows clear intent, usually a single line.
+        - Indirection can be helpful, but needless indirection is irritating.
+        - Use this when the code uses too much indrection, when it seems that every function does simple delegation to another function.
+    - *Mechanics:*
+        - *Check that this isn't a polymorphic method.*
+            - If this is a method in a class, and has subclasses that override it, then I can't inline it.
+        - *Find all the callers of the function.*
+        - *Replace each call with the function's body.*
+        - *Test after each replacement*
+            - The entire inlining doesn't have to be done in one go. It can be done incrementally, especially if some parts of the inline can be tricky.
+        - *Remove the function definition.*
+    - *Example:*
+        - *Before:*
+            ```javascript
+            function rating(aDriver) {
+                return moreThanFiveLateDeliveries(aDriver) ? 2 : 1;
+            }
+
+            function moreThanFiveLateDeliveries(aDriver) {
+                return aDriver.numberOfLateDeliveries > 5;
+            }
+            ```
+        - *After:*
+            ```javascript
+            function rating(aDriver) {
+                return aDriver.numberOfLateDeliveries > 5 ? 2 : 1;
+            }
+            ```
+        
+        - Inlining `gatherCustomerData` into `reportlines` isn't a simple cut and paste.
+        - Start with the first line of the function and work down or `Move Statements to Callers`.
+        - *Before:*
+            ```javascript
+            function reportLines(aCustomer) {
+                const lines = [];
+                gatherCustomerData(lines, aCustomer);
+                return lines;
+            }
+
+            function gatherCustomerData(out, aCustomer) {
+                out.push(["name", aCustomer.name]);
+                out.push(["location", aCustomer.location]);
+            }
+            ```
+        - *After:*
+            ```javascript
+            function reportLines(aCustomer) {
+                const lines = [];
+                lines.push(["name", aCustomer.name]);
+                lines.push(["location", aCustomer.location]);
+                return lines;
+            }
+            ```
+- **EXTRACT VARIABLE**
+    - *Formerly:* Introduce Explaining Variable
+    - *Inverse of:* Inline Variable
+    - *Motivation:* 
+        - Expressions can be hard to read and understand.
+        - Local variables can make code easier to understand.
+        - Good variables are also handy for debugging, since they provide an easy hook for a debugger or print statement to capture.
+    - *Mechanics:*
+        - *Ensure that the expression you want to extract does not have side effects.*
+        - *Declare an immutable variable. Set it to a copy of the expression you want to name*
+        - *Replace the original expression with the new variable.*
+        - *Test.*
+    - *Example:*
+        - *Before:*
+            ```javascript
+            function price(order) {
+                // price is base price - quantity discount + shipping
+                return order.quantity * order.itemPrice -
+                    Math.max(0, order.quantity - 500) * order.itemPrice * 0.05 +
+                    Math.min(order.quantity * order.itemPrice * 0.1, 100);
+            }
+            ```
+        - *After:*
+            ```javascript
+            function price(order) {
+                // price is base price - quantity discount + shipping
+                const basePrice = order.quantity * order.itemPrice;
+                const quantityDiscount = Math.max(0, order.quantity - 500) * order.itemPrice * 0.05;
+                const shipping = Math.min(basePrice * 0.1, 100);
+                return basePrice - quantityDiscount + shipping;
+            }
+            ```
+
+        - *Before:*
+            ```javascript
+            class Order {
+                constructor(aRecord) {
+                    this._data = aRecord;
+                }
+
+                get quantity() {return this._data.quantity;}
+                get itemPrice() {return this._data.itemPrice;}
+
+                get price() {
+                    return this.quantity * this.itemPrice -
+                        Math.max(0, this.quantity - 500) * this.itemPrice * 0.05 +
+                        Math.min(this.quantity * this.itemPrice * 0.1, 100);
+                }
+            }
+            ```
+        - *After:*
+            ```javascript
+            class Order {
+                constructor(aRecord) {
+                    this._data = aRecord;
+                }
+
+                get quantity() {return this._data.quantity;}
+                get itemPrice() {return this._data.itemPrice;}
+
+                get price() {
+                    return this.basePrice - this.quantityDiscount + this.shipping;
+                }
+
+                get basePrice() {
+                    return this.quantity * this.itemPrice;
+                }
+
+                get quantityDiscount() {
+                    return Math.max(0, this.quantity - 500) * this.itemPrice * 0.05;
+                }
+
+                get shipping() {
+            }
+            ```
+
+- **INLINE VARIABLE**
+    - *Formerly:* Inline Temp
+    - *Inverse of:* Extract Variable
+    - *Motivation:* 
+        - Variables are used to hold the result of an expression, and usually they are a GOOD THING.
+        - However, sometimes the name does not really communnicate more than the expression itself.
+        - It also gets in the way of refactoring neighboring code.
+        - In these cases, it is better to inline the variable.
+    - *Mechanics:*
+        - Check that the right-hand side of the assignment is free of side effects.
+        - If the variable isn't already declared immutable, do so and test. This checks tat it's only assigned to once.
+        - Find the first reference to the variable and replace it with the right-hand side of the assignment.
+        - Test.
+        - Repeat replacing references to the variable until you've replaced all of them.
+        - Remove the declaration and assignment of the variable.
+        - Test.
+
+- **CHANGE FUNCTION DECLARATION**
+    - *aka:* Rename Function
+    - *aka:* Change Signarture
+    - *Formerly:* Rename Method
+    - *Formerly:* Add Paramater
+    - *Formerly:* Remove Parameter
+    - *Motivation:*
+        - The name of a function should clearly communicate its purpose to someone who will read the code.
+        - 
